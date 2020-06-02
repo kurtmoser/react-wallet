@@ -1,32 +1,15 @@
 import React, { Component } from 'react';
+import { Route } from 'react-router-dom';
 import axios from 'axios';
-import ExpenseForm from './components/ExpenseForm';
-import ExpensesTable from './components/ExpensesTable';
+import Home from './components/Home';
+import ExpenseEdit from './components/ExpenseEdit';
 
 class App extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      expenses: null,
-    }
-  }
-
-  async componentDidMount() {
-    const expenses = (await axios.get('http://localhost:8000/expenses')).data;
-
-    this.setState({
-      expenses
-    });
-
-    console.log(expenses);
-  }
-
   render() {
     return (
       <div>
-        <ExpenseForm />
-        <ExpensesTable expenses={this.state.expenses} />
+        <Route exact path='/' component={Home} />
+        <Route exact path='/expenses/:id' component={ExpenseEdit} />
       </div>
     );
   }
