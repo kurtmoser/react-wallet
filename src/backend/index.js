@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const bodyParser = require('body-parser');
 const Database = require('./database/Database');
 const Knex = require('knex');
 const knexConfig = require('../../knexfile');
@@ -8,6 +9,7 @@ const knexConfig = require('../../knexfile');
 const server = express();
 server.use(cors());
 server.use(morgan('combined'));
+server.use(bodyParser.json());
 
 const db = new Database(Knex(knexConfig));
 
@@ -28,9 +30,16 @@ server.get('/expenses/:id', async (req, res) => {
   res.send(expense);
 });
 
-server.post('/expenses', (req, res) => {
+server.post('/expenses', async (req, res) => {
   // create
-  res.send();
+  const expense = await db.insertExpense(req.body);
+
+  if (!expense) {
+    res.status(400).send();
+    return;
+  }
+
+  res.status(201).send(expense);
 });
 
 server.put('/expenses/:id', (req, res) => {

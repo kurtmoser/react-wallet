@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import ExpenseForm from './components/ExpenseForm';
 import ExpensesTable from './components/ExpensesTable';
 
 class App extends Component {
@@ -24,6 +25,7 @@ class App extends Component {
   render() {
     return (
       <div>
+        <ExpenseForm />
         <ExpensesTable expenses={this.state.expenses} />
       </div>
     );
