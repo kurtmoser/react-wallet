@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
-import { Button, Container, Paper, TextField } from '@material-ui/core';
+import { Button, Container, Dialog, DialogTitle, DialogActions, Paper, TextField } from '@material-ui/core';
 import { format as dateFormat } from 'date-fns';
 import axios from 'axios';
+import { withRouter } from 'react-router-dom';
 
 export class ExpenseForm extends Component {
   constructor(props) {
@@ -12,6 +13,7 @@ export class ExpenseForm extends Component {
       sdate: dateFormat(new Date(), 'yyyy-MM-dd'),
       location: '',
       goods: '',
+      dialogOpen: false,
     }
 
     this.submitEnabled = this.submitEnabled.bind(this);
@@ -19,6 +21,8 @@ export class ExpenseForm extends Component {
     this.handleAdd = this.handleAdd.bind(this);
     this.handleEdit = this.handleEdit.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
+    this.handleDeleteConfirmOpen = this.handleDeleteConfirmOpen.bind(this);
+    this.handleDeleteConfirmClose = this.handleDeleteConfirmClose.bind(this);
   }
 
   async componentDidMount() {
@@ -63,11 +67,25 @@ export class ExpenseForm extends Component {
     });
   }
 
+  handleDeleteConfirmOpen() {
+    this.setState({
+      dialogOpen: true,
+    });
+  }
+
+  handleDeleteConfirmClose() {
+    this.setState({
+      dialogOpen: false,
+    });
+  }
+
   async handleDelete() {
+    this.handleDeleteConfirmClose();
+
     const res = await axios.delete('http://localhost:8000/expenses/' + this.props.expenseId);
 
     if (res.status === 204) {
-      // TODO: Redirect home
+      this.props.history.replace('/');
     }
   }
 
@@ -143,10 +161,25 @@ export class ExpenseForm extends Component {
                 disabled={!this.submitEnabled()}
                 color="secondary"
                 style={{ margin: 8, float: 'right'}}
-                onClick={this.handleDelete}
+                onClick={this.handleDeleteConfirmOpen}
               >
                 Delete
               </Button>
+              <Dialog
+                maxWidth="xs"
+                fullWidth
+                open={this.state.dialogOpen}
+              >
+                <DialogTitle id="alert-dialog-title">{"Delete expense?"}</DialogTitle>
+                <DialogActions>
+                  <Button onClick={this.handleDeleteConfirmClose} color="primary">
+                    No
+                  </Button>
+                  <Button onClick={this.handleDelete} value={true} color="primary" autoFocus>
+                    Yes
+                  </Button>
+                </DialogActions>
+              </Dialog>
             </div>
           }
         </Paper>
@@ -156,4 +189,4 @@ export class ExpenseForm extends Component {
   }
 }
 
-export default ExpenseForm
+export default withRouter(ExpenseForm);
