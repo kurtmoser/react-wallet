@@ -1,9 +1,14 @@
 const express = require('express');
+const cors = require('cors');
+const morgan = require('morgan');
 const Database = require('./database/Database');
 const Knex = require('knex');
 const knexConfig = require('../../knexfile');
 
 const server = express();
+server.use(cors());
+server.use(morgan('combined'));
+
 const db = new Database(Knex(knexConfig));
 
 server.get('/expenses', async (req, res) => {
