@@ -16,6 +16,16 @@ class Database {
 
     return await this.getExpense(expenseId);
   }
+
+  async editExpense(id, data) {
+    await this.database('expenses').where('id', id).update(data);
+
+    return await this.getExpense(id);
+  }
+
+  async deleteExpense(id) {
+    await this.database('expenses').where('id', id).delete();
+  }
 }
 
 module.exports = Database;

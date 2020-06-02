@@ -16,7 +16,26 @@ export class ExpenseForm extends Component {
 
     this.submitEnabled = this.submitEnabled.bind(this);
     this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleAdd = this.handleAdd.bind(this);
+    this.handleEdit = this.handleEdit.bind(this);
+    this.handleDelete = this.handleDelete.bind(this);
+  }
+
+  async componentDidMount() {
+    if (this.props.expenseId) {
+      const expense = (await axios.get('http://localhost:8000/expenses/' + this.props.expenseId)).data;
+
+      this.setState({
+        amount: expense.amount,
+        sdate: expense.sdate,
+        location: expense.location,
+        goods: expense.goods,
+      });
+    } else {
+      this.setState({
+        sdate: dateFormat(new Date(), 'yyyy-MM-dd'),
+      });
+    }
   }
 
   submitEnabled() {
@@ -26,15 +45,30 @@ export class ExpenseForm extends Component {
       && this.state.goods;
   }
 
-  async handleSubmit() {
+  async handleAdd() {
     const res = await axios.post('http://localhost:8000/expenses', {
       amount: this.state.amount,
       sdate: this.state.sdate,
       location: this.state.location,
       goods: this.state.goods,
     });
+  }
 
-    console.log(res);
+  async handleEdit() {
+    const res = await axios.put('http://localhost:8000/expenses/' + this.props.expenseId, {
+      amount: this.state.amount,
+      sdate: this.state.sdate,
+      location: this.state.location,
+      goods: this.state.goods,
+    });
+  }
+
+  async handleDelete() {
+    const res = await axios.delete('http://localhost:8000/expenses/' + this.props.expenseId);
+
+    if (res.status === 204) {
+      // TODO: Redirect home
+    }
   }
 
   handleChange(event) {
@@ -80,17 +114,41 @@ export class ExpenseForm extends Component {
             onChange={this.handleChange}
             style={{margin: 8, marginTop: 12}}
           />
-          <div>
-            <Button
-              variant="contained"
-              disabled={!this.submitEnabled()}
-              color="primary"
-              style={{ margin: 8, float: 'right'}}
-              onClick={this.handleSubmit}
-            >
-              Add
-            </Button>
-          </div>
+          {
+            !this.props.expenseId && <div>
+              <Button
+                variant="contained"
+                disabled={!this.submitEnabled()}
+                color="primary"
+                style={{ margin: 8, float: 'right'}}
+                onClick={this.handleAdd}
+              >
+                Add
+              </Button>
+            </div>
+          }
+          {
+            this.props.expenseId && <div>
+              <Button
+                variant="contained"
+                disabled={!this.submitEnabled()}
+                color="primary"
+                style={{ margin: 8, float: 'right'}}
+                onClick={this.handleEdit}
+              >
+                Edit
+              </Button>
+              <Button
+                variant="outlined"
+                disabled={!this.submitEnabled()}
+                color="secondary"
+                style={{ margin: 8, float: 'right'}}
+                onClick={this.handleDelete}
+              >
+                Delete
+              </Button>
+            </div>
+          }
         </Paper>
         <br />
       </Container>

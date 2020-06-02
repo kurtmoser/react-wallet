@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
+import ExpenseForm from './ExpenseForm';
 
 export class ExpenseEdit extends Component {
   render() {
     return (
       <div>
-        expense edit route
+        <ExpenseForm expenseId={this.props.match.params.id} />
       </div>
     )
   }
