@@ -3,6 +3,8 @@ import { Button, Container, Dialog, DialogTitle, DialogActions, Paper, TextField
 import { format as dateFormat } from 'date-fns';
 import axios from 'axios';
 import { withRouter } from 'react-router-dom';
+import { KeyboardDatePicker } from '@material-ui/pickers';
+import 'date-fns';
 
 export class ExpenseForm extends Component {
   constructor(props) {
@@ -10,7 +12,7 @@ export class ExpenseForm extends Component {
 
     this.state = {
       amount: '',
-      sdate: dateFormat(new Date(), 'yyyy-MM-dd'),
+      sdate: null,
       location: '',
       goods: '',
       dialogOpen: false,
@@ -23,6 +25,7 @@ export class ExpenseForm extends Component {
     this.handleDelete = this.handleDelete.bind(this);
     this.handleDeleteConfirmOpen = this.handleDeleteConfirmOpen.bind(this);
     this.handleDeleteConfirmClose = this.handleDeleteConfirmClose.bind(this);
+    this.handleDateChange = this.handleDateChange.bind(this);
   }
 
   async componentDidMount() {
@@ -31,13 +34,13 @@ export class ExpenseForm extends Component {
 
       this.setState({
         amount: expense.amount,
-        sdate: expense.sdate,
+        sdate: new Date(),
         location: expense.location,
         goods: expense.goods,
       });
     } else {
       this.setState({
-        sdate: dateFormat(new Date(), 'yyyy-MM-dd'),
+        sdate: new Date(),
       });
     }
   }
@@ -52,7 +55,7 @@ export class ExpenseForm extends Component {
   async handleAdd() {
     const res = await axios.post('http://localhost:8000/expenses', {
       amount: this.state.amount,
-      sdate: this.state.sdate,
+      sdate: dateFormat(this.state.sdate, 'yyyy-MM-dd'),
       location: this.state.location,
       goods: this.state.goods,
     });
@@ -61,7 +64,7 @@ export class ExpenseForm extends Component {
   async handleEdit() {
     const res = await axios.put('http://localhost:8000/expenses/' + this.props.expenseId, {
       amount: this.state.amount,
-      sdate: this.state.sdate,
+      sdate: dateFormat(this.state.sdate, 'yyyy-MM-dd'),
       location: this.state.location,
       goods: this.state.goods,
     });
@@ -95,6 +98,12 @@ export class ExpenseForm extends Component {
     });
   }
 
+  handleDateChange(date) {
+    this.setState({
+      sdate: date,
+    });
+  };
+
   render() {
     return (
       <Container maxWidth="sm">
@@ -108,14 +117,14 @@ export class ExpenseForm extends Component {
             onChange={this.handleChange}
             style={{margin: 8, marginTop: 12}}
           />
-          <TextField
-            name="sdate"
-            value={this.state.sdate}
-            variant="outlined"
-            label="Date"
-            onChange={this.handleChange}
-            style={{margin: 8, marginTop: 12}}
-          />
+          <KeyboardDatePicker
+              inputVariant="outlined"
+              label="Date"
+              format="yyyy-MM-dd"
+              value={this.state.sdate}
+              onChange={this.handleDateChange}
+              style={{margin: 8, marginTop: 12}}
+            />
           <TextField
             name="location"
             value={this.state.location}
@@ -154,13 +163,13 @@ export class ExpenseForm extends Component {
                 style={{ margin: 8, float: 'right'}}
                 onClick={this.handleEdit}
               >
-                Edit
+                Save
               </Button>
               <Button
                 variant="outlined"
                 disabled={!this.submitEnabled()}
                 color="secondary"
-                style={{ margin: 8, float: 'right'}}
+                style={{ margin: 8, marginRight: 0, float: 'right'}}
                 onClick={this.handleDeleteConfirmOpen}
               >
                 Delete
