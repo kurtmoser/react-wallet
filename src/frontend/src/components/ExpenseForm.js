@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Button, Container, Dialog, DialogTitle, DialogActions, Paper, TextField } from '@material-ui/core';
-import { format as dateFormat } from 'date-fns';
+import { format as dateFormat, parse as dateParse } from 'date-fns';
 import axios from 'axios';
 import { withRouter } from 'react-router-dom';
 import { KeyboardDatePicker } from '@material-ui/pickers';
@@ -15,6 +15,7 @@ export class ExpenseForm extends Component {
       sdate: null,
       location: '',
       goods: '',
+      originalExpense: null,
       dialogOpen: false,
     }
 
@@ -26,17 +27,23 @@ export class ExpenseForm extends Component {
     this.handleDeleteConfirmOpen = this.handleDeleteConfirmOpen.bind(this);
     this.handleDeleteConfirmClose = this.handleDeleteConfirmClose.bind(this);
     this.handleDateChange = this.handleDateChange.bind(this);
+    this.isPristine = this.isFormPristine.bind(this);
   }
 
   async componentDidMount() {
     if (this.props.expenseId) {
-      const expense = (await axios.get('http://localhost:8000/expenses/' + this.props.expenseId)).data;
+      const res = (await axios.get('http://localhost:8000/expenses/' + this.props.expenseId)).data;
+
+      const expense = {
+        amount: res.amount.toFixed(2),
+        sdate: dateParse(res.sdate, 'yyyy-MM-dd', new Date()),
+        location: res.location,
+        goods: res.goods,
+      };
 
       this.setState({
-        amount: expense.amount,
-        sdate: new Date(),
-        location: expense.location,
-        goods: expense.goods,
+        ...expense,
+        originalExpense: expense,
       });
     } else {
       this.setState({
@@ -52,21 +59,58 @@ export class ExpenseForm extends Component {
       && this.state.goods;
   }
 
+  isFormPristine() {
+    if (!this.state.originalExpense) {
+      return true;
+    }
+
+    let expense = {
+      amount: this.state.amount,
+      sdate: this.state.sdate,
+      location: this.state.location,
+      goods: this.state.goods,
+    };
+
+    return JSON.stringify(expense) === JSON.stringify(this.state.originalExpense);
+  }
+
   async handleAdd() {
-    const res = await axios.post('http://localhost:8000/expenses', {
+    let expense = {
       amount: this.state.amount,
       sdate: dateFormat(this.state.sdate, 'yyyy-MM-dd'),
       location: this.state.location,
       goods: this.state.goods,
+    };
+
+    const res = await axios.post('http://localhost:8000/expenses', expense);
+
+    // Clean up form
+    this.setState({
+      amount: '',
+      sdate: new Date(),
+      location: '',
+      goods: '',
     });
   }
 
   async handleEdit() {
-    const res = await axios.put('http://localhost:8000/expenses/' + this.props.expenseId, {
+    let expense = {
       amount: this.state.amount,
       sdate: dateFormat(this.state.sdate, 'yyyy-MM-dd'),
       location: this.state.location,
       goods: this.state.goods,
+    };
+
+    const res = await axios.put('http://localhost:8000/expenses/' + this.props.expenseId, expense);
+
+    // Sync original expense
+    this.setState({
+      originalExpense: {
+        amount: res.data.amount.toFixed(2),
+        sdate: dateParse(res.data.sdate, 'yyyy-MM-dd', new Date()),
+        location: res.data.location,
+        goods: res.data.goods,
+      },
     });
   }
 
@@ -158,7 +202,7 @@ export class ExpenseForm extends Component {
             this.props.expenseId && <div>
               <Button
                 variant="contained"
-                disabled={!this.submitEnabled()}
+                disabled={!this.submitEnabled() || this.isFormPristine()}
                 color="primary"
                 style={{ margin: 8, float: 'right'}}
                 onClick={this.handleEdit}
@@ -167,7 +211,6 @@ export class ExpenseForm extends Component {
               </Button>
               <Button
                 variant="outlined"
-                disabled={!this.submitEnabled()}
                 color="secondary"
                 style={{ margin: 8, marginRight: 0, float: 'right'}}
                 onClick={this.handleDeleteConfirmOpen}
