@@ -1,5 +1,14 @@
 import React, { Component } from 'react'
-import { Button, Container, Dialog, DialogTitle, DialogActions, Paper, TextField } from '@material-ui/core';
+import {
+  Button,
+  Chip,
+  Container,
+  Dialog,
+  DialogTitle,
+  DialogActions,
+  Paper,
+  TextField
+} from '@material-ui/core';
 import { format as dateFormat, parse as dateParse } from 'date-fns';
 import axios from 'axios';
 import { withRouter } from 'react-router-dom';
@@ -17,6 +26,8 @@ export class ExpenseForm extends Component {
       goods: '',
       originalExpense: null,
       dialogOpen: false,
+      topLocations: null,
+      topGoods: null,
     }
 
     this.submitEnabled = this.submitEnabled.bind(this);
@@ -28,6 +39,10 @@ export class ExpenseForm extends Component {
     this.handleDeleteConfirmClose = this.handleDeleteConfirmClose.bind(this);
     this.handleDateChange = this.handleDateChange.bind(this);
     this.isPristine = this.isFormPristine.bind(this);
+    this.refreshTopLocations = this.refreshTopLocations.bind(this);
+    this.refreshTopGoods = this.refreshTopGoods.bind(this);
+
+    this.timer = null;
   }
 
   async componentDidMount() {
@@ -50,6 +65,25 @@ export class ExpenseForm extends Component {
         sdate: new Date(),
       });
     }
+
+    this.refreshTopLocations();
+    this.refreshTopGoods();
+  }
+
+  async refreshTopLocations() {
+    const res = (await axios.get('http://localhost:8000/top/locations' + '?location=' + this.state.location)).data;
+
+    this.setState({
+      topLocations: res,
+    });
+  }
+
+  async refreshTopGoods() {
+    const res = (await axios.get('http://localhost:8000/top/goods' + '?goods=' + this.state.goods + '&location=' + this.state.location)).data;
+
+    this.setState({
+      topGoods: res,
+    });
   }
 
   submitEnabled() {
@@ -140,6 +174,20 @@ export class ExpenseForm extends Component {
     this.setState({
       [event.target.name]: event.target.value,
     });
+
+    if (event.target.name === 'location') {
+      if (this.timer) {
+        clearTimeout(this.timer);
+      }
+
+      this.timer = setTimeout(this.refreshTopLocations, 200);
+    } else if (event.target.name === 'goods') {
+      if (this.timer) {
+        clearTimeout(this.timer);
+      }
+
+      this.timer = setTimeout(this.refreshTopGoods, 200);
+    }
   }
 
   handleDateChange(date) {
@@ -147,6 +195,26 @@ export class ExpenseForm extends Component {
       sdate: date,
     });
   };
+
+  handleLocationSuggestionClick(location) {
+    this.setState({
+      location
+    }, this.refreshTopLocations);
+  }
+
+  handleGoodsSuggestionClick(goods) {
+    this.setState({
+      goods
+    }, this.refreshTopGoods);
+  }
+
+  handleAmountBlur() {
+    if (this.state.amount) {
+      this.setState({
+        amount: parseFloat(this.state.amount).toFixed(2),
+      });
+    }
+  }
 
   render() {
     return (
@@ -159,7 +227,10 @@ export class ExpenseForm extends Component {
             variant="outlined"
             label="Amount"
             onChange={this.handleChange}
+            onBlur={() => this.handleAmountBlur()}
+            type="number"
             style={{margin: 8, marginTop: 12}}
+            autoComplete="off"
           />
           <KeyboardDatePicker
               inputVariant="outlined"
@@ -176,7 +247,23 @@ export class ExpenseForm extends Component {
             label="Location"
             onChange={this.handleChange}
             style={{margin: 8, marginTop: 12}}
+            autoComplete="off"
           />
+          <div
+            style={{marginLeft: 8, marginRight: 8}}
+          >
+            {
+              this.state.topLocations && this.state.topLocations.map((loc) => (
+                <Chip
+                  key={loc.location}
+                  label={loc.location}
+                  size="small"
+                  style={{marginRight: 8}}
+                  onClick={() => this.handleLocationSuggestionClick(loc.location)}
+                />
+              ))
+            }
+          </div>
           <TextField
             name="goods"
             value={this.state.goods}
@@ -184,7 +271,23 @@ export class ExpenseForm extends Component {
             label="Goods"
             onChange={this.handleChange}
             style={{margin: 8, marginTop: 12}}
+            autoComplete="off"
           />
+          <div
+            style={{marginLeft: 8, marginRight: 8}}
+          >
+            {
+              this.state.topGoods && this.state.topGoods.map((goods) => (
+                <Chip
+                  key={goods.goods}
+                  label={goods.goods}
+                  size="small"
+                  style={{marginRight: 8, marginBottom: 8}}
+                  onClick={() => this.handleGoodsSuggestionClick(goods.goods)}
+                />
+              ))
+            }
+          </div>
           {
             !this.props.expenseId && <div>
               <Button
