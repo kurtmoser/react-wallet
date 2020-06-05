@@ -56,6 +56,14 @@ server.delete('/expenses/:id', async (req, res) => {
   res.status(204).send();
 });
 
+server.get('/top/locations', async (req, res) => {
+  res.send(await db.getTopLocations(req.query.location));
+});
+
+server.get('/top/goods', async (req, res) => {
+  res.send(await db.getTopGoods(req.query.goods, req.query.location));
+});
+
 server.listen(8000, () => {
   console.log('listening to port 8000');
 });
