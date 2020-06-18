@@ -83,7 +83,7 @@ server.get('*', (req, res) => {
   res.sendFile(path.join(publicPath, 'index.html'));
 });
 
-const serverPort = process.env.SERVER_PORT || 8000;
+const serverPort = process.env.PORT || 8000;
 server.listen(serverPort, () => {
   console.log('listening to port ' + serverPort);
 });
