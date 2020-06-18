@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const Database = require('./database/Database');
 const Knex = require('knex');
 const knexConfig = require('../../knexfile');
+const path = require('path');
 
 const server = express();
 server.use(cors());
@@ -13,11 +14,13 @@ server.use(bodyParser.json());
 
 const db = new Database(Knex(knexConfig));
 
-server.get('/expenses', async (req, res) => {
+// API
+
+server.get('/api/expenses', async (req, res) => {
   res.send(await db.getExpenses());
 });
 
-server.get('/expenses/:id', async (req, res) => {
+server.get('/api/expenses/:id', async (req, res) => {
   const expense = await db.getExpense(req.params.id);
 
   if (!expense) {
@@ -28,7 +31,7 @@ server.get('/expenses/:id', async (req, res) => {
   res.send(expense);
 });
 
-server.post('/expenses', async (req, res) => {
+server.post('/api/expenses', async (req, res) => {
   const expense = await db.insertExpense(req.body);
 
   if (!expense) {
@@ -39,7 +42,7 @@ server.post('/expenses', async (req, res) => {
   res.status(201).send(expense);
 });
 
-server.put('/expenses/:id', async (req, res) => {
+server.put('/api/expenses/:id', async (req, res) => {
   const expense = await db.editExpense(req.params.id, req.body);
 
   if (!expense) {
@@ -50,18 +53,29 @@ server.put('/expenses/:id', async (req, res) => {
   res.status(200).send(expense);
 });
 
-server.delete('/expenses/:id', async (req, res) => {
+server.delete('/api/expenses/:id', async (req, res) => {
   await db.deleteExpense(req.params.id);
 
   res.status(204).send();
 });
 
-server.get('/top/locations', async (req, res) => {
+server.get('/api/top/locations', async (req, res) => {
   res.send(await db.getTopLocations(req.query.location));
 });
 
-server.get('/top/goods', async (req, res) => {
+server.get('/api/top/goods', async (req, res) => {
   res.send(await db.getTopGoods(req.query.goods, req.query.location));
+});
+
+// Frontend
+
+const publicPath = path.join(__dirname, '..', 'frontend', 'build');
+server.use(express.static(publicPath));
+// server.get('/', (req, res) => {
+//   res.send('in index');
+// });
+server.get('*', (req, res) => {
+  res.sendFile(path.join(publicPath, 'index.html'));
 });
 
 server.listen(8000, () => {
