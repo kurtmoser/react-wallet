@@ -6,6 +6,7 @@ const Database = require('./database/Database');
 const Knex = require('knex');
 const knexConfig = require('../../knexfile');
 const path = require('path');
+require('dotenv').config();
 
 const server = express();
 server.use(cors());
@@ -67,6 +68,10 @@ server.get('/api/top/goods', async (req, res) => {
   res.send(await db.getTopGoods(req.query.goods, req.query.location));
 });
 
+server.get('/status', async (req, res) => {
+  res.send('OK');
+});
+
 // Frontend
 
 const publicPath = path.join(__dirname, '..', 'frontend', 'build');
@@ -78,6 +83,7 @@ server.get('*', (req, res) => {
   res.sendFile(path.join(publicPath, 'index.html'));
 });
 
-server.listen(8000, () => {
-  console.log('listening to port 8000');
+const serverPort = process.env.SERVER_PORT || 8000;
+server.listen(serverPort, () => {
+  console.log('listening to port ' + serverPort);
 });
