@@ -47,7 +47,7 @@ export class ExpenseForm extends Component {
 
   async componentDidMount() {
     if (this.props.expenseId) {
-      const res = (await axios.get('http://localhost:8000/api/expenses/' + this.props.expenseId)).data;
+      const res = (await axios.get('/api/expenses/' + this.props.expenseId)).data;
 
       const expense = {
         amount: res.amount.toFixed(2),
@@ -71,7 +71,7 @@ export class ExpenseForm extends Component {
   }
 
   async refreshTopLocations() {
-    const res = (await axios.get('http://localhost:8000/api/top/locations' + '?location=' + this.state.location)).data;
+    const res = (await axios.get('/api/top/locations' + '?location=' + this.state.location)).data;
 
     this.setState({
       topLocations: res,
@@ -79,7 +79,7 @@ export class ExpenseForm extends Component {
   }
 
   async refreshTopGoods() {
-    const res = (await axios.get('http://localhost:8000/api/top/goods' + '?goods=' + this.state.goods + '&location=' + this.state.location)).data;
+    const res = (await axios.get('/api/top/goods' + '?goods=' + this.state.goods + '&location=' + this.state.location)).data;
 
     this.setState({
       topGoods: res,
@@ -116,7 +116,7 @@ export class ExpenseForm extends Component {
       goods: this.state.goods,
     };
 
-    const res = await axios.post('http://localhost:8000/api/expenses', expense);
+    const res = await axios.post('/api/expenses', expense);
 
     // Clean up form
     this.setState({
@@ -135,7 +135,7 @@ export class ExpenseForm extends Component {
       goods: this.state.goods,
     };
 
-    const res = await axios.put('http://localhost:8000/api/expenses/' + this.props.expenseId, expense);
+    const res = await axios.put('/api/expenses/' + this.props.expenseId, expense);
 
     // Sync original expense
     this.setState({
@@ -163,7 +163,7 @@ export class ExpenseForm extends Component {
   async handleDelete() {
     this.handleDeleteConfirmClose();
 
-    const res = await axios.delete('http://localhost:8000/api/expenses/' + this.props.expenseId);
+    const res = await axios.delete('/api/expenses/' + this.props.expenseId);
 
     if (res.status === 204) {
       this.props.history.replace('/');
