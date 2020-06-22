@@ -22,6 +22,10 @@ export class Home extends Component {
   }
 
   async componentDidMount() {
+    this.refreshExpenses();
+  }
+
+  async refreshExpenses() {
     const expenses = (await axios.get('/api/expenses?per_page=5&sort=-sdate,-id')).data;
 
     const startOfWeek = dateStartOfWeek(new Date(), { weekStartsOn: 1 });
@@ -65,7 +69,7 @@ export class Home extends Component {
           </Toolbar>
         </AppBar>
 
-        <ExpenseForm />
+        <ExpenseForm refreshExpenses={p => this.refreshExpenses(p)} />
         <ExpensesTable expenses={this.state.expenses} />
       </div>
     )

@@ -125,6 +125,8 @@ export class ExpenseForm extends Component {
       location: '',
       goods: '',
     });
+
+    this.props.refreshExpenses();
   }
 
   async handleEdit() {
