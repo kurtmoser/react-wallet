@@ -22,7 +22,7 @@ export class Home extends Component {
   }
 
   async componentDidMount() {
-    const expenses = (await axios.get('/api/expenses')).data;
+    const expenses = (await axios.get('/api/expenses?per_page=5&sort=-sdate,-id')).data;
 
     const startOfWeek = dateStartOfWeek(new Date(), { weekStartsOn: 1 });
     const startOfDay = dateStartOfDay(new Date(), { weekStartsOn: 1 });

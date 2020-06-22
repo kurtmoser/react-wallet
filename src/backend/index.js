@@ -18,7 +18,7 @@ const db = new Database(Knex(knexConfig));
 // API
 
 server.get('/api/expenses', async (req, res) => {
-  res.send(await db.getExpenses());
+  res.send(await db.getExpenses(req.query));
 });
 
 server.get('/api/expenses/:id', async (req, res) => {

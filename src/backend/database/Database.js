@@ -3,8 +3,39 @@ class Database {
     this.database = database;
   }
 
-  async getExpenses() {
-    return(await this.database('expenses').select('*').orderBy('sdate', 'desc').limit(10));
+  buildSortRule(query, params) {
+    let sortRules = (params.sort || '').split(',').filter(value => value);
+
+    console.log(sortRules);
+
+    sortRules.forEach(value => {
+      if (value[0] === '-') {
+        query.orderBy(value.substring(1), 'desc');
+      } else {
+        query.orderBy(value, 'asc');
+      }
+    });
+
+    return query;
+  }
+
+  buildLimitRule(query, params) {
+    params.per_page = parseInt(params.per_page) || 30;
+    params.page = parseInt(params.page) || 1;
+
+    query.limit(params.per_page)
+    query.offset((params.page - 1) * params.per_page);
+
+    return query;
+  }
+
+  async getExpenses(params) {
+    let query = this.database('expenses').select('*');
+
+    query = this.buildSortRule(query, params);
+    query = this.buildLimitRule(query, params);
+
+    return await query;
   }
 
   async getExpense(id) {
