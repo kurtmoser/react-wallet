@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./src/backend/index.js",
-    "build": "cd ./src/frontend/ && yarn install && yarn build"
+    "build": "cd ./src/frontend/ && yarn install && yarn build",
+    "hotrun": "cd ./src/frontend/ && yarn install && yarn start",
+    "migrate": "./node_modules/.bin/knex migrate:up"
   },
   "keywords": [],
   "author": "",
