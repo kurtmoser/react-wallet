@@ -7,8 +7,6 @@ import { withRouter } from 'react-router-dom';
 export class ExpenseEdit extends Component {
   constructor(props) {
     super(props);
-
-    this.handleBack = this.handleBack.bind(this);
   }
 
   handleBack() {
@@ -20,7 +18,7 @@ export class ExpenseEdit extends Component {
       <div>
         <AppBar position="static">
           <Toolbar>
-            <ArrowBackIcon onClick={this.handleBack} style={{ cursor: 'pointer' }} />
+            <ArrowBackIcon onClick={() => this.handleBack()} style={{ cursor: 'pointer' }} />
           </Toolbar>
         </AppBar>
 

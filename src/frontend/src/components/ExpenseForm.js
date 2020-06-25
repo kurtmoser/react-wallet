@@ -30,15 +30,6 @@ export class ExpenseForm extends Component {
       topGoods: null,
     }
 
-    this.submitEnabled = this.submitEnabled.bind(this);
-    this.handleChange = this.handleChange.bind(this);
-    this.handleAdd = this.handleAdd.bind(this);
-    this.handleEdit = this.handleEdit.bind(this);
-    this.handleDelete = this.handleDelete.bind(this);
-    this.handleDeleteConfirmOpen = this.handleDeleteConfirmOpen.bind(this);
-    this.handleDeleteConfirmClose = this.handleDeleteConfirmClose.bind(this);
-    this.handleDateChange = this.handleDateChange.bind(this);
-    this.isPristine = this.isFormPristine.bind(this);
     this.refreshTopLocations = this.refreshTopLocations.bind(this);
     this.refreshTopGoods = this.refreshTopGoods.bind(this);
 
@@ -228,7 +219,7 @@ export class ExpenseForm extends Component {
             value={this.state.amount}
             variant="outlined"
             label="Amount"
-            onChange={this.handleChange}
+            onChange={(e) => this.handleChange(e)}
             onBlur={() => this.handleAmountBlur()}
             type="number"
             style={{margin: 8, marginTop: 12}}
@@ -239,7 +230,7 @@ export class ExpenseForm extends Component {
               label="Date"
               format="yyyy-MM-dd"
               value={this.state.sdate}
-              onChange={this.handleDateChange}
+              onChange={(e) => this.handleDateChange(e)}
               style={{margin: 8, marginTop: 12}}
             />
           <TextField
@@ -247,7 +238,7 @@ export class ExpenseForm extends Component {
             value={this.state.location}
             variant="outlined"
             label="Location"
-            onChange={this.handleChange}
+            onChange={(event) => this.handleChange(event)}
             style={{margin: 8, marginTop: 12}}
             autoComplete="off"
           />
@@ -271,7 +262,7 @@ export class ExpenseForm extends Component {
             value={this.state.goods}
             variant="outlined"
             label="Goods"
-            onChange={this.handleChange}
+            onChange={(e) => this.handleChange(e)}
             style={{margin: 8, marginTop: 12}}
             autoComplete="off"
           />
@@ -297,7 +288,7 @@ export class ExpenseForm extends Component {
                 disabled={!this.submitEnabled()}
                 color="primary"
                 style={{ margin: 8, float: 'right'}}
-                onClick={this.handleAdd}
+                onClick={() => this.handleAdd()}
               >
                 Add
               </Button>
@@ -310,7 +301,7 @@ export class ExpenseForm extends Component {
                 disabled={!this.submitEnabled() || this.isFormPristine()}
                 color="primary"
                 style={{ margin: 8, float: 'right'}}
-                onClick={this.handleEdit}
+                onClick={() => this.handleEdit()}
               >
                 Save
               </Button>
@@ -318,7 +309,7 @@ export class ExpenseForm extends Component {
                 variant="outlined"
                 color="secondary"
                 style={{ margin: 8, marginRight: 0, float: 'right'}}
-                onClick={this.handleDeleteConfirmOpen}
+                onClick={() => this.handleDeleteConfirmOpen()}
               >
                 Delete
               </Button>
@@ -329,10 +320,10 @@ export class ExpenseForm extends Component {
               >
                 <DialogTitle id="alert-dialog-title">{"Delete expense?"}</DialogTitle>
                 <DialogActions>
-                  <Button onClick={this.handleDeleteConfirmClose} color="primary">
+                  <Button onClick={() => this.handleDeleteConfirmClose()} color="primary">
                     No
                   </Button>
-                  <Button onClick={this.handleDelete} value={true} color="primary" autoFocus>
+                  <Button onClick={() => this.handleDelete()} value={true} color="primary" autoFocus>
                     Yes
                   </Button>
                 </DialogActions>
