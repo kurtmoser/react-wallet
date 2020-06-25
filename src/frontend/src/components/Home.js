@@ -26,7 +26,7 @@ export class Home extends Component {
   }
 
   async refreshExpenses() {
-    const expenses = (await axios.get('/api/expenses?per_page=5&sort=-sdate,-id')).data;
+    const expenses = (await axios.get(process.env.REACT_APP_API_URL + '/expenses?per_page=5&sort=-sdate,-id')).data;
 
     const startOfWeek = dateStartOfWeek(new Date(), { weekStartsOn: 1 });
     const startOfDay = dateStartOfDay(new Date(), { weekStartsOn: 1 });
